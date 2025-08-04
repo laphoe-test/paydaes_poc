@@ -53,7 +53,6 @@ public class MultiTenantManager {
                 .password(password)
                 .build();
 
-        // Check that new connection is 'live'. If not - throw exception
         try(Connection c = dataSource.getConnection()) {
             tenantDataSources.put(tenantId, dataSource);
             multiTenantDataSource.afterPropertiesSet();

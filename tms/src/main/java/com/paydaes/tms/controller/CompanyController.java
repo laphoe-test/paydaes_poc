@@ -17,9 +17,6 @@ import java.util.Optional;
 public class CompanyController {
 
     @Autowired
-    private ClientService clientService;
-
-    @Autowired
     private CompanyService companyService;
 
     @PostMapping
@@ -31,54 +28,9 @@ public class CompanyController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getClientById(@PathVariable Long id) {
-        Optional<ClientDto> client = clientService.getClientById(id);
-        return client.map(c -> new ResponseEntity<>(c, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ClientDto>> getAllClients() {
-        List<ClientDto> clients = clientService.getAllClients();
-        return new ResponseEntity<>(clients, HttpStatus.OK);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<CompanyDto> searchCompany(final @RequestParam String name) {
         return new ResponseEntity<>(companyService.getCompanyByName(name), HttpStatus.OK);
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<ClientDto> getClientByEmail(@PathVariable String email) {
-        Optional<ClientDto> client = clientService.getClientByEmail(email);
-        return client.map(c -> new ResponseEntity<>(c, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ClientDto> updateClient(@PathVariable Long id, @RequestBody ClientDto clientDto) {
-        try {
-            ClientDto updatedClient = clientService.updateClient(id, clientDto);
-            return new ResponseEntity<>(updatedClient, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        try {
-            clientService.deleteClient(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Long> getTotalClientCount() {
-        long count = clientService.getTotalClientCount();
-        return new ResponseEntity<>(count, HttpStatus.OK);
-    }
 }
