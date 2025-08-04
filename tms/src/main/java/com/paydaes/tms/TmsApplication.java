@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = "com.paydaes.entities.model")
 @EnableJpaRepositories(basePackages = "com.paydaes.entities.repository")
-@SpringBootApplication(scanBasePackages = {"com.paydaes.entities", "com.paydaes.tms"})
+@SpringBootApplication(scanBasePackages = {"com.paydaes.entities", "com.paydaes.tms","com.paydaes.utils"})
 public class TmsApplication {
 
     public static void main(String[] args) {
