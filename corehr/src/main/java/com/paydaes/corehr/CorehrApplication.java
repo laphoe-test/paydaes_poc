@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EntityScan(basePackages = "com.paydaes.entities.model")
 @EnableJpaRepositories(basePackages = "com.paydaes.entities.repository")
-@SpringBootApplication(scanBasePackages = {"com.paydaes.entities", "com.paydaes.corehr"})
+@SpringBootApplication(scanBasePackages = {"com.paydaes.entities", "com.paydaes.corehr","com.paydaes.utils"})
 public class CorehrApplication {
 
     public static void main(String[] args) {
