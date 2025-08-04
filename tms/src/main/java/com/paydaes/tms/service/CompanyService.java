@@ -29,24 +29,11 @@ public class CompanyService {
             throw new RuntimeException("Company already exists: " + companyDto.getName());
         }
 
-        String cipher = null;
-        String plain = null;
-        try {
-            cipher = securityService.encrypt(companyDto.getPassword());
-            plain = securityService.decrypt(cipher);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println("cipher: "+ cipher);
-        System.out.println("plain: "+ plain);
-
         String dbName = "company_"+companyDto.getName();
         String url = databaseService.create(dbName,companyDto.getName(),companyDto.getPassword(), List.of(Employee.class));
 
-        Company company = null;
         try {
-            company = companyRepository.save(
+            Company company = companyRepository.save(
                     Company.builder()
                             .clientId(companyDto.getClientId())
                             .name(companyDto.getName())
@@ -55,11 +42,12 @@ public class CompanyService {
                             .cipherDbPassword(securityService.encrypt(companyDto.getPassword()))
                             .build()
             );
+
+
+            return convertToDto(company);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return convertToDto(company);
     }
 
     public CompanyDto getCompanyByName(final String name) {
