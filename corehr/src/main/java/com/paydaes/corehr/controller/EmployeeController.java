@@ -1,12 +1,8 @@
 package com.paydaes.corehr.controller;
 
-import com.paydaes.corehr.client.CompanyClient;
-import com.paydaes.corehr.config.MultiTenantManager;
-import com.paydaes.entities.dto.CompanyDto;
 import com.paydaes.entities.dto.EmployeeDto;
 import com.paydaes.entities.model.Employee;
 import com.paydaes.corehr.service.EmployeeService;
-import com.paydaes.utils.security.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,31 +18,12 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
-    @Autowired
-    private CompanyClient companyClient;
-
-    @Autowired
-    private MultiTenantManager multiTenantManager;
-
-    @Autowired
-    private SecurityService securityService;
-
     @PostMapping
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestHeader(value = "Tenant-name", required = false) String tenantName,
-                                                      @RequestBody EmployeeDto employeeDto) {
+    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto) {
         try {
-            CompanyDto dto = companyClient.searchCompany(tenantName);
-
-            String url = securityService.decrypt(dto.getCipherDbUrl());
-            String user = securityService.decrypt(dto.getCipherDbUser());
-            String password = securityService.decrypt(dto.getCipherDbPassword());
-
-            multiTenantManager.addTenant(dto.getName(), url, user, password);
-            multiTenantManager.setCurrentTenant(dto.getName());
-
             EmployeeDto createdEmployee = employeeService.createEmployee(employeeDto);
             return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
