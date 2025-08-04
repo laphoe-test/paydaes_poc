@@ -20,6 +20,7 @@
 
 	<modules>
 		<module>entities</module>
+		<module>utils</module>
 		<module>tms</module>
 		<module>corehr</module>
 	</modules>
