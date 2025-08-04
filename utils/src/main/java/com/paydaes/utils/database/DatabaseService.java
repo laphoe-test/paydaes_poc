@@ -42,7 +42,7 @@ public class DatabaseService {
             schemaExport.setFormat(true);
             schemaExport.createOnly(EnumSet.of(TargetType.STDOUT, TargetType.DATABASE), metadata);
         } catch (Exception e) {
-            System.err.println("Error connecting to H2 database: " + e.getMessage());
+            throw new RuntimeException();
         }
 
         return url;
