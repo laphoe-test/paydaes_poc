@@ -61,6 +61,10 @@ public class MultiTenantManager {
         currentTenant.set(tenantId);
     }
 
+    public void removeCurrentTenant() {
+        currentTenant.remove();
+    }
+
     private DriverManagerDataSource defaultDataSource() {
         DriverManagerDataSource defaultDataSource = new DriverManagerDataSource();
         defaultDataSource.setDriverClassName("org.h2.Driver");
