@@ -1,12 +1,15 @@
 package com.paydaes.corehr.service;
 
+import com.paydaes.corehr.client.CompanyClient;
+import com.paydaes.corehr.config.MultiTenantManager;
 import com.paydaes.entities.dao.EmployeeDao;
+import com.paydaes.entities.dto.CompanyDto;
 import com.paydaes.entities.dto.EmployeeDto;
 import com.paydaes.entities.model.Employee;
+import com.paydaes.utils.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,18 +21,9 @@ import java.util.stream.Collectors;
 public class EmployeeService {
     
     private final EmployeeDao employeeDao;
-    
+
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-        // Validate if employee ID already exists
-        if (employeeDao.existsByEmployeeId(employeeDto.getEmployeeId())) {
-            throw new RuntimeException("Employee with ID already exists: " + employeeDto.getEmployeeId());
-        }
-        
-        // Validate if email already exists
-        if (employeeDao.existsByEmail(employeeDto.getEmail())) {
-            throw new RuntimeException("Employee with email already exists: " + employeeDto.getEmail());
-        }
-        
+
         Employee employee = new Employee(
             employeeDto.getEmployeeId(),
             employeeDto.getFirstName(),

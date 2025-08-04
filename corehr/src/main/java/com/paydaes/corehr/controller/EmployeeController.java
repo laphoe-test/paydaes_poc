@@ -1,8 +1,12 @@
 package com.paydaes.corehr.controller;
 
+import com.paydaes.corehr.client.CompanyClient;
+import com.paydaes.corehr.config.MultiTenantManager;
+import com.paydaes.entities.dto.CompanyDto;
 import com.paydaes.entities.dto.EmployeeDto;
 import com.paydaes.entities.model.Employee;
 import com.paydaes.corehr.service.EmployeeService;
+import com.paydaes.utils.security.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,65 +18,84 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/corehr/employees")
 public class EmployeeController {
-    
+
     @Autowired
     private EmployeeService employeeService;
-    
+
+    @Autowired
+    private CompanyClient companyClient;
+
+    @Autowired
+    private MultiTenantManager multiTenantManager;
+
+    @Autowired
+    private SecurityService securityService;
+
     @PostMapping
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto) {
+    public ResponseEntity<EmployeeDto> createEmployee(@RequestHeader(value = "Tenant-name", required = false) String tenantName,
+                                                      @RequestBody EmployeeDto employeeDto) {
         try {
+            CompanyDto dto = companyClient.searchCompany(tenantName);
+
+            String url = securityService.decrypt(dto.getCipherDbUrl());
+            String user = securityService.decrypt(dto.getCipherDbUser());
+            String password = securityService.decrypt(dto.getCipherDbPassword());
+
+            multiTenantManager.addTenant(dto.getName(), url, user, password);
+            multiTenantManager.setCurrentTenant(dto.getName());
+
             EmployeeDto createdEmployee = employeeService.createEmployee(employeeDto);
             return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id) {
         Optional<EmployeeDto> employee = employeeService.getEmployeeById(id);
         return employee.map(e -> new ResponseEntity<>(e, HttpStatus.OK))
-                      .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
+
     @GetMapping("/employee-id/{employeeId}")
     public ResponseEntity<EmployeeDto> getEmployeeByEmployeeId(@PathVariable String employeeId) {
         Optional<EmployeeDto> employee = employeeService.getEmployeeByEmployeeId(employeeId);
         return employee.map(e -> new ResponseEntity<>(e, HttpStatus.OK))
-                      .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
+
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
         List<EmployeeDto> employees = employeeService.getAllEmployees();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-    
+
     @GetMapping("/department/{department}")
     public ResponseEntity<List<EmployeeDto>> getEmployeesByDepartment(@PathVariable String department) {
         List<EmployeeDto> employees = employeeService.getEmployeesByDepartment(department);
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-    
+
     @GetMapping("/status/{status}")
     public ResponseEntity<List<EmployeeDto>> getEmployeesByStatus(@PathVariable Employee.EmployeeStatus status) {
         List<EmployeeDto> employees = employeeService.getEmployeesByStatus(status);
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-    
+
     @GetMapping("/search")
     public ResponseEntity<List<EmployeeDto>> searchEmployees(@RequestParam String name) {
         List<EmployeeDto> employees = employeeService.searchEmployeesByName(name);
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-    
+
     @GetMapping("/email/{email}")
     public ResponseEntity<EmployeeDto> getEmployeeByEmail(@PathVariable String email) {
         Optional<EmployeeDto> employee = employeeService.getEmployeeByEmail(email);
         return employee.map(e -> new ResponseEntity<>(e, HttpStatus.OK))
-                      .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDto employeeDto) {
         try {
@@ -82,7 +105,7 @@ public class EmployeeController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
-    
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<EmployeeDto> updateEmployeeStatus(@PathVariable Long id, @RequestParam Employee.EmployeeStatus status) {
         try {
@@ -92,7 +115,7 @@ public class EmployeeController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         try {
@@ -102,7 +125,7 @@ public class EmployeeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
+
     @GetMapping("/count/status/{status}")
     public ResponseEntity<Long> getEmployeeCountByStatus(@PathVariable Employee.EmployeeStatus status) {
         long count = employeeService.getEmployeeCountByStatus(status);
