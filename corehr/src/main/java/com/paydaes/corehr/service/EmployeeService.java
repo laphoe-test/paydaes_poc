@@ -28,12 +28,12 @@ public class EmployeeService {
             throw new RuntimeException("Employee with email already exists: " + employeeDto.getEmail());
         }
 
-        Employee employee = new Employee(
-                employeeDto.getEmployeeId(),
-                employeeDto.getFirstName(),
-                employeeDto.getLastName(),
-                employeeDto.getEmail()
-        );
+        Employee employee = Employee.builder()
+                .employeeId(employeeDto.getEmployeeId())
+                .firstName(employeeDto.getFirstName())
+                .lastName(employeeDto.getLastName())
+                .email(employeeDto.getEmail())
+                .build();
 
         employee.setPhoneNumber(employeeDto.getPhoneNumber());
         employee.setHireDate(employeeDto.getHireDate());

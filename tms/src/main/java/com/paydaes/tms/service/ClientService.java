@@ -25,11 +25,10 @@ public class ClientService {
             throw new RuntimeException("Client with email already exists: " + clientDto.getEmail());
         }
         
-        Client client = new Client(
-            clientDto.getName(),
-            clientDto.getEmail(),
-            clientDto.getPhoneNumber()
-        );
+        Client client = Client.builder()
+                .name(clientDto.getName())
+                .email(clientDto.getEmail())
+                .phoneNumber(clientDto.getPhoneNumber()).build();
         
         Client savedClient = clientRepository.save(client);
         return convertToDto(savedClient);

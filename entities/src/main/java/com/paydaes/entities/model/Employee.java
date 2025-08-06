@@ -1,6 +1,8 @@
 package com.paydaes.entities.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "employees")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,19 +56,20 @@ public class Employee {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
-    // Constructor
-    public Employee(String employeeId, String firstName, String lastName, String email) {
-        this.employeeId = employeeId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.status = EmployeeStatus.ACTIVE;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
     
     public enum EmployeeStatus {
         ACTIVE, INACTIVE, TERMINATED
     }
+
+
 }
