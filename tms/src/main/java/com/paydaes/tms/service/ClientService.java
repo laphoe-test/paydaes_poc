@@ -34,8 +34,8 @@ public class ClientService {
         return convertToDto(savedClient);
     }
     
-    public Optional<ClientDto> getClientById(Long id) {
-        return clientRepository.findById(id).map(this::convertToDto);
+    public ClientDto getClientById(Long id) {
+        return clientRepository.findById(id).map(this::convertToDto).orElseThrow(RuntimeException::new);
     }
     
     public Optional<ClientDto> getClientByEmail(String email) {

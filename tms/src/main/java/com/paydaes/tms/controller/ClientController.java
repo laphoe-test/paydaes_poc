@@ -25,10 +25,8 @@ public class ClientController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getClientById(@PathVariable Long id) {
-        Optional<ClientDto> client = clientService.getClientById(id);
-        return client.map(c -> new ResponseEntity<>(c, HttpStatus.OK))
-                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ClientDto getClientById(@PathVariable Long id) {
+        return clientService.getClientById(id);
     }
     
     @GetMapping
