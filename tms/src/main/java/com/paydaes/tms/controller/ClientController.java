@@ -19,12 +19,9 @@ public class ClientController {
     
     @PostMapping
     public ResponseEntity<ClientDto> createClient(@RequestBody ClientDto clientDto) {
-        try {
             ClientDto createdClient = clientService.createClient(clientDto);
             return new ResponseEntity<>(createdClient, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+
     }
     
     @GetMapping("/{id}")

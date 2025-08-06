@@ -22,7 +22,7 @@ public class ClientService {
     public ClientDto createClient(ClientDto clientDto) {
         // Validate if email already exists
         if (clientRepository.existsByEmail(clientDto.getEmail())) {
-            throw new RuntimeException("Client with email already exists: " + clientDto.getEmail());
+            throw new IllegalArgumentException("Client with email already exists: " + clientDto.getEmail());
         }
         
         Client client = Client.builder()
