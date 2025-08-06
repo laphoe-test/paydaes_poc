@@ -1,8 +1,8 @@
 package com.paydaes.tms.service;
 
-import com.paydaes.entities.dao.ClientDao;
 import com.paydaes.entities.dto.ClientDto;
 import com.paydaes.entities.model.Client;
+import com.paydaes.entities.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,46 +17,45 @@ import java.util.stream.Collectors;
 public class ClientService {
     
     @Autowired
-    private ClientDao clientDao;
+    private ClientRepository clientRepository;
     
     public ClientDto createClient(ClientDto clientDto) {
         // Validate if email already exists
-        if (clientDao.existsByEmail(clientDto.getEmail())) {
-            throw new RuntimeException("Client with email already exists: " + clientDto.getEmail());
+        if (clientRepository.existsByEmail(clientDto.getEmail())) {
+            throw new IllegalArgumentException("Client with email already exists: " + clientDto.getEmail());
         }
         
-        Client client = new Client(
-            clientDto.getName(),
-            clientDto.getEmail(),
-            clientDto.getPhoneNumber()
-        );
+        Client client = Client.builder()
+                .name(clientDto.getName())
+                .email(clientDto.getEmail())
+                .phoneNumber(clientDto.getPhoneNumber()).build();
         
-        Client savedClient = clientDao.save(client);
+        Client savedClient = clientRepository.save(client);
         return convertToDto(savedClient);
     }
     
-    public Optional<ClientDto> getClientById(Long id) {
-        return clientDao.findById(id).map(this::convertToDto);
+    public ClientDto getClientById(Long id) {
+        return clientRepository.findById(id).map(this::convertToDto).orElseThrow(RuntimeException::new);
     }
     
     public Optional<ClientDto> getClientByEmail(String email) {
-        return clientDao.findByEmail(email).map(this::convertToDto);
+        return clientRepository.findByEmail(email).map(this::convertToDto);
     }
     
     public List<ClientDto> getAllClients() {
-        return clientDao.findAll().stream()
+        return clientRepository.findAll().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
     
     public List<ClientDto> searchClientsByName(String name) {
-        return clientDao.findByNameContaining(name).stream()
+        return clientRepository.findByNameContainingIgnoreCase(name).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
     
     public ClientDto updateClient(Long id, ClientDto clientDto) {
-        Optional<Client> existingClient = clientDao.findById(id);
+        Optional<Client> existingClient = clientRepository.findById(id);
         if (existingClient.isEmpty()) {
             throw new RuntimeException("Client not found with id: " + id);
         }
@@ -67,19 +66,19 @@ public class ClientService {
         client.setPhoneNumber(clientDto.getPhoneNumber());
         client.setUpdatedAt(LocalDateTime.now());
         
-        Client updatedClient = clientDao.save(client);
+        Client updatedClient = clientRepository.save(client);
         return convertToDto(updatedClient);
     }
     
     public void deleteClient(Long id) {
-        if (!clientDao.findById(id).isPresent()) {
+        if (!clientRepository.findById(id).isPresent()) {
             throw new RuntimeException("Client not found with id: " + id);
         }
-        clientDao.deleteById(id);
+        clientRepository.deleteById(id);
     }
     
     public long getTotalClientCount() {
-        return clientDao.countTotalClients();
+        return clientRepository.countTotalClients();
     }
     
     private ClientDto convertToDto(Client client) {

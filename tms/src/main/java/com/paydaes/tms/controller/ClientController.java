@@ -19,19 +19,14 @@ public class ClientController {
     
     @PostMapping
     public ResponseEntity<ClientDto> createClient(@RequestBody ClientDto clientDto) {
-        try {
             ClientDto createdClient = clientService.createClient(clientDto);
             return new ResponseEntity<>(createdClient, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getClientById(@PathVariable Long id) {
-        Optional<ClientDto> client = clientService.getClientById(id);
-        return client.map(c -> new ResponseEntity<>(c, HttpStatus.OK))
-                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ClientDto getClientById(@PathVariable Long id) {
+        return clientService.getClientById(id);
     }
     
     @GetMapping
